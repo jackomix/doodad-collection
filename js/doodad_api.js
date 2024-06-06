@@ -57,4 +57,9 @@ function doodad(doodad_name) {
     this.eClass = function(className) {
         return document.querySelector("#doodad_" + this.name).querySelector("." + className);
     }
+
+    // returns true if it's a new day, or doodad is ran for the first time
+    this.doWeReset = newDay || this.get("_initialized") !== "true";
+    
+    this.set("_initialized", "true");
 }

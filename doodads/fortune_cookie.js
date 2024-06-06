@@ -43,11 +43,10 @@
             <img src="img/fortune_cookie/cookieopened.png" id="openedCookie">
         </div>
     `);
-
-    // newDay is a boolean that is true if the user has not visited the site today
-    // it acts as a "reset" for the doodad. we set "cookieOpened" so that the user can only open the cookie once per day,
+    
+    // check if it's a new day, or if this doodad is being ran for the first time. we set "cookieOpened" so that the user can only open the cookie once per day,
     // otherwise the user could just refresh the page to get a new fortune
-    if (newDay) doodad.set("cookieOpened", "false");
+    if (doodad.doWeReset) doodad.set("cookieOpened", "false");
 
     if (doodad.get("cookieOpened") === "false") {
         unopenedCookie();
