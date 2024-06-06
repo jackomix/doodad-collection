@@ -19,7 +19,7 @@ html, body {
 .doodad {
     height: 28rem;
     outline: var(--main-color) 4px solid;
-    background: var(--background-color);
+    background: var(--doodad-color);
     padding: 1rem;
 }
 
