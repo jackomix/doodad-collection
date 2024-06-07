@@ -5,13 +5,14 @@
         <title>doodad collection</title>
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/style.css">
-        <style id="themeCSS">
+        <style id="themeVariables">
             :root {
                 --background-color: #f2f2f2;
                 --doodad-color: transparent;
                 --main-color: #333333;
             }
         </style>
+        <style id="themeCSS"></style>
     </head>
     <body>
         <div class="collection"></div>
@@ -20,6 +21,9 @@
         <script src="js/doodad_collection.js"></script>
         <script src="js/doodad_api.js"></script>
 
+        <script src="database/doodads.js"></script>
+
+        <div id="doodadScripts"></div>
         <script src="doodads/fortune_cookie.js"></script>
     </body>
 </html>
