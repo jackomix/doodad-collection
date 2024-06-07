@@ -1,19 +1,20 @@
 // api for making doodads
 class Doodad {
     constructor(info) {
-        this._codename = info.codename;
-        this._nickname = info.nickname;
-        this._author = info.author;
-        this._description = info.description;
-        this._emoji = info.emoji;
+        // the namespace of the doodad, used to make sure different doodads have different seeds
+        this.codename = info.codename;
+        this.nickname = info.nickname;
+        this.author = info.author;
+        this.description = info.description;
+        this.emoji = info.emoji;
+
+        this.namespace = this.author + "--" + this.codename;
+        this.path = "./doodads/" + this.namespace;
 
         // these aren't defined in this class, but are set to default values
         this.HTML = ``;
         this.onLoad = () => {};
         this.onReset = () => {};
-
-        // the namespace of the doodad, used to make sure different doodads have different seeds
-        this._namespace = this._author + "-" + this._codename;
 
         if (!database.doodads) database.doodads = [];
 
@@ -24,7 +25,7 @@ class Doodad {
     // random range function
     random(seed, min, max) {
         // generate hash of full seed, this is what we'll use to generate the "random" number
-        const hash = cyrb53(date + userID + this._namespace + seed);
+        const hash = cyrb53(date + userID + this.namespace + seed);
 
         // Move the first digit to the end of the decimal
         let hashString = hash.toString();
@@ -47,7 +48,7 @@ class Doodad {
         const doodadElement = document.createElement('div');
 
         doodadElement.classList.add('doodad');
-        doodadElement.id = "doodad_" + this._namespace;
+        doodadElement.id = "doodad_" + this.namespace;
         doodadElement.innerHTML = this.HTML;
 
         collection.appendChild(doodadElement);
@@ -60,16 +61,18 @@ class Doodad {
 
     // localStorage functions
     set(name, value) {
-        localStorage.setItem("doodad_" + this._namespace + "_" + name, value);
+        localStorage.setItem("doodad_" + this.namespace + "_" + name, value);
     }
 
     get(name) {
-        return localStorage.getItem("doodad_" + this._namespace + "_" + name);
+        return localStorage.getItem("doodad_" + this.namespace + "_" + name);
     }
 
     // shorthand for getting elements, but also limits the scope to the doodad.
     // this actually makes it easier to make doodads, since you don't have to add the doodad name to all html elements
     e(query) {
-        return document.querySelector("#doodad_" + this._namespace).querySelector(query);
+        return document.querySelector("#doodad_" + this.namespace).querySelector(query);
     }
 }
+
+export default Doodad;
