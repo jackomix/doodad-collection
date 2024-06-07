@@ -8,9 +8,9 @@ class Doodad {
         this._emoji = info.emoji;
 
         // these aren't defined in this class, but are set to default values
-        this._HTML = ``;
-        this._onLoad = () => {};
-        this._onReset = () => {};
+        this.HTML = ``;
+        this.onLoad = () => {};
+        this.onReset = () => {};
 
         // the namespace of the doodad, used to make sure different doodads have different seeds
         this._namespace = this._author + "-" + this._codename;
