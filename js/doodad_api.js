@@ -1,65 +1,75 @@
 // api for making doodads
+class Doodad {
+    constructor(info) {
+        this.codename = info.codename;
+        this.nickname = info.nickname;
+        this.author = info.author;
+        this.description = info.description;
+        this.emoji = info.emoji;
 
-function doodad(doodad_name) {
-    // the name of the doodad, used to make sure different doodads have different seeds
-    this.name = doodad_name;
+        // these aren't defined in this class, but are set to default values
+        this.HTML = ``;
+        this.onLoad = () => {};
+        this.onReset = () => {};
+
+        // the namespace of the doodad, used to make sure different doodads have different seeds
+        this.namespace = this.author + "-" + this.codename;
+
+        if (!database.doodads) database.doodads = [];
+
+        // append the doodad to the database
+        database.doodads.push(this);
+    }
 
     // random range function
-    this.random = function(seed, min, max) {
+    random(seed, min, max) {
         // generate hash of full seed, this is what we'll use to generate the "random" number
-        hash = cyrb53(date + userID + this.name + seed);
+        const hash = cyrb53(date + userID + this.namespace + seed);
 
         // Move the first digit to the end of the decimal
-        hash = hash.toString();
-        hash = hash.slice(1) + hash.slice(0, 1);
+        let hashString = hash.toString();
+        hashString = hashString.slice(1) + hashString.slice(0, 1);
 
         // Convert the hash to a decimal value between 0 and 1
-        var decimal = parseFloat("0." + hash);
+        const decimal = parseFloat("0." + hashString);
 
         // Calculate the random number within the given range with decimals
-        var randomNumber = (decimal - 0) * (max - min) / (1 - 0) + min;
+        const randomNumber = (decimal - 0) * (max - min) / (1 - 0) + min;
 
         // Cut the decimals to match the maximum number of decimals in min or max
-        var decimalPlaces = Math.max(countDecimals(min), countDecimals(max));
-        randomNumber = randomNumber.toFixed(decimalPlaces);
+        const decimalPlaces = Math.max(countDecimals(min), countDecimals(max));
+        return randomNumber.toFixed(decimalPlaces);
+    }
 
-        return randomNumber;
+    // function to load the doodad
+    load() {
+        const collection = document.querySelector('.collection');
+        const doodadElement = document.createElement('div');
+
+        doodadElement.classList.add('doodad');
+        doodadElement.id = "doodad_" + this.namespace;
+        doodadElement.innerHTML = this.HTML;
+
+        collection.appendChild(doodadElement);
+
+        if (newDay || this.get("_initialized") !== "true") this.onReset();
+        this.set("_initialized", "true");
+
+        this.onLoad();
     }
 
     // localStorage functions
-    this.set = function(name, value) {
-        localStorage.setItem("doodad_" + doodad_name + "_" + name, value);
-    }
-    this.get = function(name) {
-        return localStorage.getItem("doodad_" + doodad_name + "_" + name);
+    set(name, value) {
+        localStorage.setItem("doodad_" + this.namespace + "_" + name, value);
     }
 
-    // generates the html for the doodad
-    this.generateHTML = function(html) {
-        var collection = document.querySelector('.collection');
-        var doodadElement = document.createElement('div');
-
-        doodadElement.classList.add('doodad');
-        doodadElement.id = "doodad_" + this.name;
-        doodadElement.innerHTML = html;
-
-        collection.appendChild(doodadElement);
+    get(name) {
+        return localStorage.getItem("doodad_" + this.namespace + "_" + name);
     }
 
     // shorthand for getting elements, but also limits the scope to the doodad.
     // this actually makes it easier to make doodads, since you don't have to add the doodad name to all html elements
-    this.e = function(query) {
-        return document.querySelector("#doodad_" + this.name).querySelector(query);
+    e(query) {
+        return document.querySelector("#doodad_" + this.namespace).querySelector(query);
     }
-    this.eID = function(id) {
-        return document.querySelector("#doodad_" + this.name).querySelector("#" + id);
-    }
-    this.eClass = function(className) {
-        return document.querySelector("#doodad_" + this.name).querySelector("." + className);
-    }
-
-    // returns true if it's a new day, or doodad is ran for the first time
-    this.doWeReset = newDay || this.get("_initialized") !== "true";
-    
-    this.set("_initialized", "true");
 }
