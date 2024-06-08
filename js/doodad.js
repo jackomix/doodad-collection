@@ -10,6 +10,7 @@ class Doodad {
 
         this.namespace = this.author + "--" + this.codename;
         this.path = "./doodads/" + this.namespace;
+        this.cssPrefix = "#doodad_" + this.namespace;
 
         // these aren't defined in this class, but are set to default values
         this.HTML = ``;
@@ -50,6 +51,12 @@ class Doodad {
         doodadElement.classList.add('doodad');
         doodadElement.id = "doodad_" + this.namespace;
         doodadElement.innerHTML = this.HTML;
+
+        // Check if doodad is already loaded
+        if (document.getElementById(doodadElement.id)) {
+            console.error('Doodad "' + this.namespace + '" is already loaded.');
+            return;
+        }
 
         collection.appendChild(doodadElement);
 

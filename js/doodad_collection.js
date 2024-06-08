@@ -27,12 +27,14 @@ lastKnownDate = localStorage.getItem("lastKnownDate");
 let newDay = lastKnownDate !== date; 
 localStorage.setItem("lastKnownDate", date)
 
+// define database object
+let database = {};
+
+// load or define inventory object
 if (!localStorage.getItem("inventory")) {
     localStorage.setItem("inventory", "{}");
 }
 inventory = JSON.parse(localStorage.getItem("inventory"));
-
-let database = {};
 
 /////////////////////////////////////////////////////
 

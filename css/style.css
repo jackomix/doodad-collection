@@ -5,6 +5,8 @@ html, body {
     width: 100%;
     background: var(--background-color);
     font-family: "LXGW WenKai Mono TC", monospace;
+
+    scrollbar-color: var(--active-color) var(--background-color);
 }
 
 img {
@@ -24,7 +26,7 @@ img {
 
 .doodad {
     height: 28rem;
-    outline: var(--main-color) 4px solid;
+    outline: var(--active-color) 4px solid;
     background: var(--doodad-color);
     padding: 1rem;
 }
