@@ -8,6 +8,7 @@ let doodad = new Doodad({
     author: "jackomix",
     description: "A cookie with a special fortune inside... What's inside!?",
     emoji: "🥠🍀",
+    isObtainable: true,
 });
 
 // here's our doodad's html code

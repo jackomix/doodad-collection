@@ -7,6 +7,7 @@ let doodad = new Doodad({
     author: "jackomix",
     description: "Look at all the goodies you've collected over the days!",
     emoji: "📦🏠",
+    isObtainable: false,
 });
 
 doodad.HTML = `
@@ -189,3 +190,5 @@ doodad.onLoad = function () {
     onLoadButton.classList.add("active");
     switchCategory(currentCategory);
 }
+
+doodad.load();

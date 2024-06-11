@@ -8,6 +8,8 @@ class Doodad {
         this.description = info.description;
         this.emoji = info.emoji;
 
+        this.isObtainable = info.isObtainable;
+
         this.namespace = this.author + "--" + this.codename;
         this.path = "./doodads/" + this.namespace;
         this.cssPrefix = "#doodad_" + this.namespace;
