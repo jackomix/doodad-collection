@@ -6,7 +6,7 @@ let doodad = new Doodad({
     nickname: "PO Box",
     author: "jackomix",
     description: "A place where mail can magically show up",
-    emoji: "📦📬",
+    emoji: "📬🎁",
     isObtainable: false,
     autoObtained: true,
 });
@@ -38,10 +38,10 @@ doodad.HTML = `
     ${doodad.cssPrefix} .item:nth-child(even) { animation-delay: 0.1s; }
     ${doodad.cssPrefix} .item:nth-child(odd) { animation-delay: 0.3s; }
     ${doodad.cssPrefix} .item:nth-child(1) { animation-delay: 0s; }
-    ${doodad.cssPrefix} .item:nth-child(2) { animation-delay: 0.5s; }
-    ${doodad.cssPrefix} .item:nth-child(3) { animation-delay: 1s; }
-    ${doodad.cssPrefix} .item:nth-child(4) { animation-delay: 1.5s; }
-    ${doodad.cssPrefix} .item:nth-child(5) { animation-delay: 2s; }
+    ${doodad.cssPrefix} .item:nth-child(2) { animation-delay: 0.4s; }
+    ${doodad.cssPrefix} .item:nth-child(3) { animation-delay: 0.87s; }
+    ${doodad.cssPrefix} .item:nth-child(4) { animation-delay: 1.24s; }
+    ${doodad.cssPrefix} .item:nth-child(5) { animation-delay: 2.31s; }
 
     @keyframes ${doodad.namespace}_wiggle {
         0% {transform: rotate(0deg);}
@@ -60,9 +60,12 @@ doodad.HTML = `
     <div class="item">📦</div>
     <div class="item">🎁</div>
     <div class="item">💌</div>
+    <div class="item">🎫</div>
 </div>
 `;
 
 doodad.onReset = function () {}
 
 doodad.onLoad = function () {}
+
+doodad.ready();

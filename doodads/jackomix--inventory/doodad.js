@@ -78,7 +78,8 @@ doodad.HTML = `
         align-items: center;
         width: calc(25% - 1px);
         aspect-ratio: 1/1;
-        font-size: 2rem;
+        font-size: 1.25rem;
+        white-space: nowrap;
     }
 
     ${doodad.cssPrefix} .item:hover {
@@ -108,9 +109,17 @@ doodad.HTML = `
         animation: ${doodad.namespace}_marquee 5s linear infinite;
     }
 
+    ${doodad.cssPrefix} #infoText {
+        width: fit-content;
+        display: inline-block;
+        white-space:nowrap;
+        will-change: transform;
+        padding-left: 100%;
+    }
+
     @keyframes ${doodad.namespace}_marquee {
         0% {
-            transform: translateX(100%);
+            transform: translateX(0%);
         }
         100% {
             transform: translateX(-100%);
@@ -137,25 +146,47 @@ function inventoryUpdateDoodad() {
     goodies.innerHTML = "";
     doodads.innerHTML = "";
 
+    const defaultInfoText = "inventory woohoo!! asdiasdasioudhaspiudhasiudhasiudhsaiudhaiudhu";
+
     const appendItem = (item, container) => {
+        if (category === "doodads") {
+            var itemDatabase = getDoodad(item.namespace);
+        } else {
+            var itemDatabase = item;
+        }
         const itemElement = document.createElement("div");
         itemElement.classList.add("item");
-        itemElement.innerHTML = item.emoji;
+        itemElement.innerHTML = itemDatabase.emoji;
+
+        itemElement.addEventListener("mouseenter", function () {
+            updateInfoText(`<b>${itemDatabase.nickname}</b> | ${itemDatabase.description} | <i>${item.sourceText}</i>`);
+        });
+
+        itemElement.addEventListener("mouseleave", function () {
+            updateInfoText(defaultInfoText);
+        });
 
         container.appendChild(itemElement);
     };
 
-    for (const category in inventory) {
+    var category;
+    for (category in inventory) {
         if (Array.isArray(inventory[category])) {
             inventory[category].forEach(item => appendItem(item, doodad.e("#" + category)));
         }
     }
-
-    doodad.e("#infoText").innerText = "Inventory updated!";
 }
 
+function updateInfoText(text) {
+    doodad.e("#infoText").innerHTML = text;
+    const animationDuration = doodad.e("#infoText").offsetWidth / 200; // adjust the division factor to control the animation speed
+    doodad.e("#infoText").style.animation = "none";
+    window.requestAnimationFrame(() => {
+        doodad.e("#infoText").style.animation = `${doodad.namespace}_marquee ${animationDuration}s linear infinite`;
+    });
+};
+
 doodad.onLoad = function () {
-    console.log("hi from inventory")
     const categorySelection = doodad.e(".categorySelection");
     const goodies = doodad.e("#goodies");
     const doodads = doodad.e("#doodads");
@@ -185,6 +216,8 @@ doodad.onLoad = function () {
     const onLoadButton = categorySelection.querySelector("button[value='" + currentCategory + "']");
     onLoadButton.classList.add("active");
     switchCategory(currentCategory);
+
+    inventoryUpdateDoodad();
 }
 
-//WatchJS.watch(inventory, inventoryUpdateDoodad);
+doodad.ready();

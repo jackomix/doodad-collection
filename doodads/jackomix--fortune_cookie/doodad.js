@@ -26,7 +26,6 @@ doodad.onReset = function () {
 }
 
 doodad.onLoad = function () {
-    console.log("hi from fortune cookie")
     if (doodad.get("cookieOpened") === "false") {
         unopenedCookie();
     } else {
@@ -93,3 +92,5 @@ doodad.onLoad = function () {
         }
     }
 }
+
+doodad.ready();

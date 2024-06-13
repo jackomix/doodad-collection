@@ -23,7 +23,6 @@ class Doodad {
 
         // append the doodad to the database
         database.doodads.push(this);
-        moduleLoaded(); // this helps the doodad_collection.js script know when all doodads are loaded for async reasons
     }
 
     // random range function
@@ -82,6 +81,10 @@ class Doodad {
     // this actually makes it easier to make doodads, since you don't have to add the doodad name to all html elements
     e(query) {
         return document.querySelector("#doodad_" + this.namespace).querySelector(query);
+    }
+
+    ready() {
+        moduleLoaded(); // this helps the doodad_collection.js script know when all doodads are loaded for async reasons
     }
 }
 
