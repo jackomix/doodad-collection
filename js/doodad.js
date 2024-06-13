@@ -7,6 +7,7 @@ class Doodad {
         this.author = info.author;
         this.description = info.description;
         this.emoji = info.emoji;
+        this.HTML = info.HTML;
 
         this.isObtainable = info.isObtainable;
 
@@ -15,7 +16,6 @@ class Doodad {
         this.cssPrefix = "#doodad_" + this.namespace;
 
         // these aren't defined in this class, but are set to default values
-        this.HTML = ``;
         this.onLoad = () => {};
         this.onReset = () => {};
 
@@ -23,6 +23,7 @@ class Doodad {
 
         // append the doodad to the database
         database.doodads.push(this);
+        moduleLoaded(); // this helps the doodad_collection.js script know when all doodads are loaded for async reasons
     }
 
     // random range function

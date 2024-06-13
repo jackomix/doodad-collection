@@ -1,3 +1,11 @@
+// list of doodads to load. if you add a new doodad, add it here.
+const doodadsToLoad = [
+    "jackomix--fortune_cookie",
+    "jackomix--inventory",
+    "jackomix--po_box",
+];
+let doodadsLoaded = 0;
+
 // string of the current date
 let date = new Date().toISOString().slice(0, 10);
 
@@ -31,15 +39,44 @@ localStorage.setItem("lastKnownDate", date)
 let database = {};
 
 // load or define inventory object
+let inventory = {doodads: [], goodies: []};
 if (!localStorage.getItem("inventory")) {
-    localStorage.setItem("inventory", "{}");
+    localStorage.setItem("inventory", JSON.stringify(inventory));
+} else {
+    inventory = JSON.parse(localStorage.getItem("inventory"));
 }
-inventory = JSON.parse(localStorage.getItem("inventory"));
+
+function addDoodadsToDatabase() {
+    doodadsToLoad.forEach((doodad) => {
+        const script = document.createElement("script");
+        script.src = `../doodads/${doodad}/doodad.js`;
+        script.type = "module";
+        document.head.appendChild(script);
+    });
+}
+function moduleLoaded() {
+    doodadsLoaded++;
+    if (doodadsLoaded === doodadsToLoad.length) init();
+}
+
+function init() {
+    console.log("%c" + database.doodads.length +" doodads loaded.", "color: #00ff00");
+    console.log("%cLoaded doodads:", "color: #00ff00", database.doodads);
+    if (!inventoryGetDoodad("jackomix--po_box")) inventoryAddDoodad("jackomix--po_box");
+    if (!inventoryGetDoodad("jackomix--inventory")) inventoryAddDoodad("jackomix--inventory");
+    if (!inventoryGetDoodad("jackomix--fortune_cookie")) inventoryAddDoodad("jackomix--fortune_cookie");
+
+    inventory.doodads.forEach((doodad) => {
+        getDoodad(doodad.namespace).load();
+    });
+}
+
+addDoodadsToDatabase();
 
 /////////////////////////////////////////////////////
 
 function debug_log() {
-    console.log("%c--- debug statz ---", "color: yellow");
+    console.log("--- debug statz ---");
     console.log("%cuserID: " + userID, "color: yellow");
     console.log("%cdate: " + date, "color: yellow");
     console.log("%cstartDate: " + startDate, "color: yellow");

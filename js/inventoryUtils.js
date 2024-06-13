@@ -9,6 +9,11 @@ function getRandomDoodad() {
     )[Math.floor(Math.random() * database.doodads.length)];
 }
 
+function inventoryGetDoodad(namespace) {
+    return inventory.doodads.find(doodad => doodad.namespace === namespace);
+}
+
+
 function inventoryAddDoodad(namespace, sourceText="Obtained from thin air") {
     const doodad = getDoodad(namespace);
     if (!doodad) {

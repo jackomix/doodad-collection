@@ -8,6 +8,7 @@ let doodad = new Doodad({
     description: "Look at all the goodies you've collected over the days!",
     emoji: "📦🏠",
     isObtainable: false,
+    autoObtained: true,
 });
 
 doodad.HTML = `
@@ -54,6 +55,7 @@ doodad.HTML = `
             transparent 55%, 
             transparent 100%);
         background-size: 15px 15px;
+        transition: clip-path 0.3s ease;
     }
 
     ${doodad.cssPrefix} .grid {
@@ -61,13 +63,14 @@ doodad.HTML = `
         flex-wrap: wrap;
         align-content: flex-start;
         gap: 1px;
-        overflow-x: none;
+        overflow-x: hidden;
         overflow-y: scroll;
         outline: 1px solid var(--active-color);
         flex-grow: 1;
     }
 
     ${doodad.cssPrefix} .item {
+        background-color: var(--background-color);
         outline: 1px solid var(--active-color);
         text-align: center;
         display: flex;
@@ -75,6 +78,19 @@ doodad.HTML = `
         align-items: center;
         width: calc(25% - 1px);
         aspect-ratio: 1/1;
+        font-size: 2rem;
+    }
+
+    ${doodad.cssPrefix} .item:hover {
+        animation: ${doodad.namespace}_wiggle infinite 0.25s;
+    }
+
+    @keyframes ${doodad.namespace}_wiggle {
+        0% {transform: rotate(0deg);}
+        25% {transform: rotate(5deg);}
+        50% {transform: rotate(0deg);}
+        75% {transform: rotate(-5deg);}
+        100% {transform: rotate(0deg);}
     }
 
     ${doodad.cssPrefix} .info {
@@ -89,10 +105,10 @@ doodad.HTML = `
     ${doodad.cssPrefix} .info p {
         color: var(--background-color);
         line-height: 1.5rem;
-        animation: inventory_marquee 5s linear infinite;
+        animation: ${doodad.namespace}_marquee 5s linear infinite;
     }
 
-    @keyframes inventory_marquee {
+    @keyframes ${doodad.namespace}_marquee {
         0% {
             transform: translateX(100%);
         }
@@ -108,58 +124,38 @@ doodad.HTML = `
         <button value="goodies">Goodies</button>
         <button value="doodads">Doodads</button>
     </div>
-    <div class="grid" id="goodies">
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-    </div>
-    <div class="grid" id="doodads">
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-        <div class="item">AB</div>
-    </div>
+    <div class="grid" id="goodies"></div>
+    <div class="grid" id="doodads"></div>
     <div class="info"><p id="infoText">inventory woohoo!!</p></div>
 </div>
 `;
 
+function inventoryUpdateDoodad() {
+    const goodies = doodad.e("#goodies");
+    const doodads = doodad.e("#doodads");
+
+    goodies.innerHTML = "";
+    doodads.innerHTML = "";
+
+    const appendItem = (item, container) => {
+        const itemElement = document.createElement("div");
+        itemElement.classList.add("item");
+        itemElement.innerHTML = item.emoji;
+
+        container.appendChild(itemElement);
+    };
+
+    for (const category in inventory) {
+        if (Array.isArray(inventory[category])) {
+            inventory[category].forEach(item => appendItem(item, doodad.e("#" + category)));
+        }
+    }
+
+    doodad.e("#infoText").innerText = "Inventory updated!";
+}
+
 doodad.onLoad = function () {
+    console.log("hi from inventory")
     const categorySelection = doodad.e(".categorySelection");
     const goodies = doodad.e("#goodies");
     const doodads = doodad.e("#doodads");
@@ -178,7 +174,7 @@ doodad.onLoad = function () {
 
     categorySelection.addEventListener("click", function (event) {
         currentCategory = event.target.value;
-        
+
         const buttons = categorySelection.querySelectorAll("button");
         buttons.forEach((button) => button.classList.remove("active"));
         event.target.classList.add("active");
@@ -191,4 +187,4 @@ doodad.onLoad = function () {
     switchCategory(currentCategory);
 }
 
-doodad.load();
+//WatchJS.watch(inventory, inventoryUpdateDoodad);
