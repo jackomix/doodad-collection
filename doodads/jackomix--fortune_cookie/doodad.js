@@ -63,7 +63,7 @@ doodad.onLoad = function () {
         doodad.e("#taste").innerHTML = "The " + cookieName + cookieIs + taste + ". It " + says;
 
         doodad.e("#text").innerHTML = fortunes[doodad.random("fortune", 0, fortunes.length - 1)];
-        doodad.e("#text").style.color = "#0000ff";
+        doodad.e("#text").style.color = "var(--blue)";
     }
 
     function randomizeCookieVisual() {

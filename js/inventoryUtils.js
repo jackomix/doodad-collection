@@ -27,7 +27,8 @@ function inventoryAddDoodad(namespace, sourceText="Obtained from thin air") {
     inventory.doodads.push({
         namespace: doodad.namespace,
         timeObtained: Date.now(),
-        sourceText: sourceText
+        sourceText: sourceText,
+        hidden: false,
     });
 }
 

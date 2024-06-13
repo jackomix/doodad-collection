@@ -28,7 +28,7 @@ doodad.HTML = `
         flex-shrink: 0;
     }
 
-    ${doodad.cssPrefix} .categorySelection button {
+    ${doodad.cssPrefix}  button {
         padding: 0.5em 1em;
         border: none;
         background: var(--background-color);
@@ -38,7 +38,7 @@ doodad.HTML = `
         position: relative;
     }
 
-    ${doodad.cssPrefix} .categorySelection button.active::before {
+    ${doodad.cssPrefix} .categoryButton.active::before {
         content: "";
         position: absolute;
         top: 0;
@@ -55,7 +55,6 @@ doodad.HTML = `
             transparent 55%, 
             transparent 100%);
         background-size: 15px 15px;
-        transition: clip-path 0.3s ease;
     }
 
     ${doodad.cssPrefix} .grid {
@@ -84,6 +83,29 @@ doodad.HTML = `
 
     ${doodad.cssPrefix} .item:hover {
         animation: ${doodad.namespace}_wiggle infinite 0.25s;
+    }
+
+    ${doodad.cssPrefix} .closerLook {
+        outline: 1px solid var(--active-color);
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    ${doodad.cssPrefix} .closerLookInfo {
+        flex-grow: 1;
+    }
+
+    ${doodad.cssPrefix} .closerLookButtons {
+        display: flex;
+    }
+
+    ${doodad.cssPrefix} .closerLookButtons button {
+        padding: 0.5em 1em;
+        border: none;
+        cursor: pointer;
+        outline: 1px solid var(--active-color);
+        flex: 1 1 0px;
     }
 
     @keyframes ${doodad.namespace}_wiggle {
@@ -130,8 +152,13 @@ doodad.HTML = `
 
 <div class="wrapper">
     <div class="categorySelection">
-        <button value="goodies">Goodies</button>
-        <button value="doodads">Doodads</button>
+        <button class="categoryButton" value="goodies">Goodies</button>
+        <button class="categoryButton" value="doodads">Doodads</button>
+        <button id="closerLookClose" value="close">Close</button>
+    </div>
+    <div class="closerLook">
+        <div class="closerLookInfo"></div>
+        <div class="closerLookButtons"></div>
     </div>
     <div class="grid" id="goodies"></div>
     <div class="grid" id="doodads"></div>
@@ -139,14 +166,108 @@ doodad.HTML = `
 </div>
 `;
 
+const defaultInfoText = "inventory woohoo!!";
+
+function closerLook(item, itemDatabase) {
+    const closerLookDiv = doodad.e(".closerLook");
+    const closerLookCloseButton = doodad.e("#closerLookClose");
+
+    const grids = doodad.eAll(".grid");
+    grids.forEach((grid) => {
+        grid.style.display = "none";
+    });
+    const buttons = doodad.eAll(".categorySelection button");
+    buttons.forEach((button) => {
+        if (button.id !== "closerLookClose") {
+            button.style.display = "none";
+        }
+    });
+
+    // Show the closerLook div and closerLookClose button
+    closerLookDiv.style.display = "flex";
+    closerLookCloseButton.style.display = "block";
+
+    doodad.e(".closerLookInfo").innerHTML = "";
+    doodad.e(".closerLookButtons").innerHTML = "";
+
+    // Display info about the item
+    const infoText = `${itemDatabase.description}`;
+    updateInfoText(infoText);
+
+    if (currentCategory === "goodies") {
+        makeCloserLookButton("Use", function () {
+            // Use the item
+            //useItem(item, category);
+        });
+    } else if (currentCategory === "doodads") {
+        let hideButtonName = item.hidden ? "Unhide" : "Hide";
+        const hideButton = makeCloserLookButton(hideButtonName, null);
+        hideButton.addEventListener("click", function () {
+            // Hide or unhide the item
+            item.hidden = !item.hidden;
+
+            // Rename the button to the opposite action
+            hideButton.innerText = item.hidden ? "Unhide" : "Hide";
+        });
+    }
+
+    // Handle the closerLookClose button
+    closerLookCloseButton.addEventListener("click", function () {
+        // Hide the closerLook div and closerLookClose button
+        closerLookDiv.style.display = "none";
+        closerLookCloseButton.style.display = "none";
+
+        // Show the grid and category buttons
+        buttons.forEach((button) => {
+            if (button.id !== "closerLookClose") {
+                button.style.display = "block";
+            }
+        });
+        switchCategory(currentCategory);
+
+        // Reset the info text
+        updateInfoText(defaultInfoText);
+    });
+
+    // Add buttons for deleting and using the item
+    let deleteButton = makeCloserLookButton("Delete", null);
+    let clickCount = 0;
+    deleteButton.addEventListener("click", function () {
+        clickCount++;
+        if (clickCount === 5) {
+            // Delete the item
+            // deleteItem(item, category);
+            closerLookCloseButton.click();
+        } else {
+            const remainingClicks = 5 - clickCount;
+            deleteButton.innerText = `Click ${remainingClicks} time` + (remainingClicks === 1 ? "" : "s");
+            const redness = Math.floor((clickCount / 5) * 100);
+            deleteButton.style.background = `color-mix(in srgb, var(--red) ${redness}%, transparent)`;
+        }
+    });
+}
+
+function makeCloserLookButton(text, onClick) {
+    const button = document.createElement("button");
+    button.innerText = text;
+    button.addEventListener("click", onClick);
+
+    // If button is "Delete", make it slightly red
+    if (text === "Delete") {
+        button.style.background = "color-mix(in srgb, var(--red) 10%, transparent)";
+    }
+
+    doodad.e(".closerLookButtons").appendChild(button);
+    
+    return button;
+}
+
 function inventoryUpdateDoodad() {
     const goodies = doodad.e("#goodies");
     const doodads = doodad.e("#doodads");
 
     goodies.innerHTML = "";
     doodads.innerHTML = "";
-
-    const defaultInfoText = "inventory woohoo!! asdiasdasioudhaspiudhasiudhasiudhsaiudhaiudhu";
 
     const appendItem = (item, container) => {
         if (category === "doodads") {
@@ -159,11 +280,15 @@ function inventoryUpdateDoodad() {
         itemElement.innerHTML = itemDatabase.emoji;
 
         itemElement.addEventListener("mouseenter", function () {
-            updateInfoText(`<b>${itemDatabase.nickname}</b> | ${itemDatabase.description} | <i>${item.sourceText}</i>`);
+            updateInfoText(`<b style="color: var(--yellow);">${itemDatabase.nickname}</b> | ${itemDatabase.description}`);
         });
 
         itemElement.addEventListener("mouseleave", function () {
             updateInfoText(defaultInfoText);
+        });
+
+        itemElement.addEventListener("click", function () {
+            closerLook(item, itemDatabase);
         });
 
         container.appendChild(itemElement);
@@ -186,31 +311,46 @@ function updateInfoText(text) {
     });
 };
 
+function switchCategory(category) {
+    if (!category) return;
+
+    switch (category) {
+        case "goodies":
+            goodies.style.display = "flex";
+            doodads.style.display = "none";
+            break;
+        case "doodads":
+            goodies.style.display = "none";
+            doodads.style.display = "flex";
+            break;
+    }
+
+    const buttons = doodad.eAll(".categorySelection button");
+    buttons.forEach((button) => {
+        if (button.value === category) {
+            button.classList.add("active");
+        } else {
+            button.classList.remove("active");
+        }
+    });
+}
+
+let currentCategory = "goodies";
 doodad.onLoad = function () {
     const categorySelection = doodad.e(".categorySelection");
     const goodies = doodad.e("#goodies");
     const doodads = doodad.e("#doodads");
 
-    let currentCategory = "goodies";
+    doodad.e(".closerLook").style.display = "none";
+    doodad.e("#closerLookClose").style.display = "none";
 
-    function switchCategory(category) {
-        if (category === "goodies") {
-            goodies.style.display = "flex";
-            doodads.style.display = "none";
-        } else {
-            goodies.style.display = "none";
-            doodads.style.display = "flex";
+    doodad.eAll(".categorySelection button").forEach((button) => {
+        if (button.id !== "closerLookClose") {
+            button.addEventListener("click", function (event) {
+                currentCategory = event.target.value;
+                switchCategory(currentCategory);
+            });
         }
-    }
-
-    categorySelection.addEventListener("click", function (event) {
-        currentCategory = event.target.value;
-
-        const buttons = categorySelection.querySelectorAll("button");
-        buttons.forEach((button) => button.classList.remove("active"));
-        event.target.classList.add("active");
-
-        switchCategory(currentCategory);
     });
 
     const onLoadButton = categorySelection.querySelector("button[value='" + currentCategory + "']");

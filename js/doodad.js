@@ -82,6 +82,9 @@ class Doodad {
     e(query) {
         return document.querySelector("#doodad_" + this.namespace).querySelector(query);
     }
+    eAll(query) {
+        return document.querySelector("#doodad_" + this.namespace).querySelectorAll(query);
+    }
 
     ready() {
         moduleLoaded(); // this helps the doodad_collection.js script know when all doodads are loaded for async reasons
