@@ -32,6 +32,8 @@ function inventoryAddDoodad(namespace, sourceText="Obtained from thin air") {
     });
 }
 
+/*function inventoryDeleteItem(namespace) {*/
+
 function inventoryAddGoodie(object, type, emoji, sourceText="Obtained from thin air") {
     if (!inventory.goodies) {
         inventory.goodies = [];

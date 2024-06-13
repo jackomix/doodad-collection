@@ -62,6 +62,8 @@ class Doodad {
 
         collection.appendChild(doodadElement);
 
+        this.element = doodadElement;
+
         if (newDay || this.get("_initialized") !== "true") this.onReset();
         this.set("_initialized", "true");
 
@@ -84,6 +86,14 @@ class Doodad {
     }
     eAll(query) {
         return document.querySelector("#doodad_" + this.namespace).querySelectorAll(query);
+    }
+
+    doIHide(boolean) {
+        if (boolean) {
+            this.element.style.display = "none";
+        } else {
+            this.element.style.display = "block";
+        }
     }
 
     ready() {

@@ -194,6 +194,7 @@ function closerLook(item, itemDatabase) {
     const infoText = `${itemDatabase.description}`;
     updateInfoText(infoText);
 
+    let hideButton;
     if (currentCategory === "goodies") {
         makeCloserLookButton("Use", function () {
             // Use the item
@@ -201,10 +202,10 @@ function closerLook(item, itemDatabase) {
         });
     } else if (currentCategory === "doodads") {
         let hideButtonName = item.hidden ? "Unhide" : "Hide";
-        const hideButton = makeCloserLookButton(hideButtonName, null);
+        hideButton = makeCloserLookButton(hideButtonName, null);
         hideButton.addEventListener("click", function () {
-            // Hide or unhide the item
             item.hidden = !item.hidden;
+            itemDatabase.doIHide(item.hidden);
 
             // Rename the button to the opposite action
             hideButton.innerText = item.hidden ? "Unhide" : "Hide";
@@ -245,6 +246,12 @@ function closerLook(item, itemDatabase) {
             deleteButton.style.background = `color-mix(in srgb, var(--red) ${redness}%, transparent)`;
         }
     });
+
+    // Disable hiding or deleting the inventory doodad
+    if (item.namespace === doodad.namespace) {
+        hideButton.style.display = "none";
+        deleteButton.style.display = "none";
+    }
 }
 
 function makeCloserLookButton(text, onClick) {

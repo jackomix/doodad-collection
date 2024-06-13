@@ -68,6 +68,8 @@ function init() {
 
     inventory.doodads.forEach((doodad) => {
         getDoodad(doodad.namespace).load();
+        
+        getDoodad(doodad.namespace).doIHide(doodad.hidden);
     });
 }
 
