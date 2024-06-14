@@ -49,7 +49,7 @@ if (!localStorage.getItem("inventory")) {
 function addDoodadsToDatabase() {
     doodadsToLoad.forEach((doodad) => {
         const script = document.createElement("script");
-        script.src = `doodads/${doodad}/doodad.js`;
+        script.src = `./doodads/${doodad}/doodad.js`;
         script.type = "module";
         document.head.appendChild(script);
     });
