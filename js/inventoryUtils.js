@@ -32,7 +32,12 @@ function inventoryAddDoodad(namespace, sourceText="Obtained from thin air") {
     });
 }
 
-/*function inventoryDeleteItem(namespace) {*/
+function inventoryDeleteItem(namespace) {
+    inventory.doodads = inventory.doodads.filter(doodad => doodad.namespace !== namespace);
+
+    const doodadElement = document.getElementById("doodad_" + namespace);
+    if (doodadElement) doodadElement.remove();
+}
 
 function inventoryAddGoodie(object, type, emoji, sourceText="Obtained from thin air") {
     if (!inventory.goodies) {

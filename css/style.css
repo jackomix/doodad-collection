@@ -1,19 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai+Mono+TC:wght@400;700&display=swap');
+  
 
 html, body { 
     height: 100%;
     width: 100%;
     background: var(--background-color);
+
     font-family: "LXGW WenKai Mono TC", monospace;
+    font-weight: 400;
 
     scrollbar-color: var(--active-color) var(--background-color);
+}
+
+b {
+    text-shadow:1px 0 0 currentColor;
 }
 
 img {
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
-  }
+}
 
 .collection {
     width: 100%;

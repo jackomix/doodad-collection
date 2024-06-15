@@ -94,7 +94,21 @@ doodad.HTML = `
     }
     
     ${doodad.cssPrefix} .closerLookInfo {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5em;
+        text-align: center;
+        padding: 1em;
         flex-grow: 1;
+    }
+    ${doodad.cssPrefix} .closerLookInfo .item {
+        bottom-margin: 2em;
+        transform-style: preserve-3d;
+    }
+    ${doodad.cssPrefix} .closerLookInfo p {
+        z-index: 1;
     }
 
     ${doodad.cssPrefix} .closerLookButtons {
@@ -149,6 +163,15 @@ doodad.HTML = `
         }
     }
 
+    @keyframes ${doodad.namespace}_3dspin {
+        0% {
+            transform: rotate3d(1, 1, 1, 0deg);
+        }
+        100% {
+            transform: rotate3d(1, 2, 1, 360deg);
+        }
+    }
+
 </style>
 
 <div class="wrapper">
@@ -191,9 +214,34 @@ function closerLook(item, itemDatabase) {
     doodad.e(".closerLookInfo").innerHTML = "";
     doodad.e(".closerLookButtons").innerHTML = "";
 
-    // Display info about the item
-    const infoText = `${itemDatabase.description}`;
-    updateInfoText(infoText);
+    updateInfoText(item.sourceText);
+
+    // if doodad, make a square with the emoji, and add a 3d spinning animation in all axis
+    if (currentCategory === "doodads") {
+        const iconElement = document.createElement("div");
+        iconElement.classList.add("item");
+        iconElement.innerHTML = itemDatabase.emoji;
+        iconElement.style.animation = `${doodad.namespace}_3dspin 5s ease-in-out infinite`;
+        iconElement.style.animationDelay = "-" + (Math.random()*10 + 1) + "s";
+        iconElement.style.cursor = "default";
+        iconElement.style.width = "8rem";
+        iconElement.style.fontSize = "2rem";
+        doodad.e(".closerLookInfo").appendChild(iconElement);
+
+        const nicknameElement = document.createElement("p");
+        nicknameElement.innerHTML = `<b>${itemDatabase.nickname}</b>`;
+        doodad.e(".closerLookInfo").appendChild(nicknameElement);
+
+        const authorElement = document.createElement("p");
+        authorElement.innerHTML = `by ${itemDatabase.author}`;
+        authorElement.style.fontSize = "0.75rem";
+        authorElement.style.marginTop = "-0.5em";
+        doodad.e(".closerLookInfo").appendChild(authorElement);
+
+        const descriptionElement = document.createElement("p");
+        descriptionElement.innerHTML = itemDatabase.description;
+        doodad.e(".closerLookInfo").appendChild(descriptionElement);
+    }
 
     let hideButton;
     if (currentCategory === "goodies") {
@@ -237,8 +285,8 @@ function closerLook(item, itemDatabase) {
     deleteButton.addEventListener("click", function () {
         clickCount++;
         if (clickCount === 5) {
-            // Delete the item
-            // deleteItem(item, category);
+            inventoryDeleteItem(item.namespace);
+            inventoryUpdateDoodad();
             closerLookCloseButton.click();
         } else {
             const remainingClicks = 5 - clickCount;
@@ -374,9 +422,9 @@ function inventoryUpdateDoodad() {
             // Determine the index to insert the dragged item
             let insertIndex;
             if (isLeft) {
-            insertIndex = targetItemIndex;
+                insertIndex = targetItemIndex;
             } else {
-            insertIndex = targetItemIndex + 1;
+                insertIndex = targetItemIndex + 1; // this was + 1 but had issues. check later if this is correct
             }
 
             // Remove the dragged item from its original position
@@ -385,8 +433,20 @@ function inventoryUpdateDoodad() {
             // Insert the dragged item at the new position
             inventory[currentCategory].splice(insertIndex, 0, draggedItem);
 
-            // Update the inventory in the DOM
             inventoryUpdateDoodad();
+
+            // Update the order of the actual doodad divs outside of this doodad by iterating through them and moving them to the correct position
+            const draggedDoodadElement = document.querySelector(`#doodad_${draggedItemNamespace}`);
+            const targetDoodadElement = document.querySelector(`#doodad_${targetItemNamespace}`);
+            const containerElement = draggedDoodadElement.parentElement;
+
+            if (isLeft) {
+                containerElement.insertBefore(draggedDoodadElement, targetDoodadElement);
+            } else {
+                containerElement.insertBefore(draggedDoodadElement, targetDoodadElement.nextSibling);
+            }
+
+            console.log("Ordered " + Math.random());
         });
 
         container.appendChild(itemElement);

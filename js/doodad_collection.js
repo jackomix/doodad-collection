@@ -67,9 +67,6 @@ function init() {
     if (!inventoryGetDoodad("jackomix--fortune_cookie")) inventoryAddDoodad("jackomix--fortune_cookie");
 
     inventory = proxify(inventory, function(object, property, oldValue, newValue) {
-        console.log('property ' + property + ' changed from ' + oldValue +
-                    ' to ' + newValue);
-                    
         // trigger event inventoryUpdate
         const event = new CustomEvent("inventoryUpdate", {detail: {object, property, oldValue, newValue}});
         document.dispatchEvent(event);

@@ -3,7 +3,7 @@ import Doodad from "../../js/doodad.js";
 // define the doodad, "fortune_cookie" by me -- jackomix
 let doodad = new Doodad({
     codename: "po_box",
-    nickname: "PO Box",
+    nickname: "P.O. Box",
     author: "jackomix",
     description: "A place where mail can magically show up",
     emoji: "📬🎁",
