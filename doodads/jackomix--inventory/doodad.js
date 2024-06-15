@@ -79,6 +79,7 @@ doodad.HTML = `
         aspect-ratio: 1/1;
         font-size: 1.25rem;
         white-space: nowrap;
+        cursor: pointer;
     }
 
     ${doodad.cssPrefix} .item:hover {
@@ -98,6 +99,7 @@ doodad.HTML = `
 
     ${doodad.cssPrefix} .closerLookButtons {
         display: flex;
+        gap: 1px;
     }
 
     ${doodad.cssPrefix} .closerLookButtons button {
@@ -128,7 +130,6 @@ doodad.HTML = `
     ${doodad.cssPrefix} .info p {
         color: var(--background-color);
         line-height: 1.5rem;
-        animation: ${doodad.namespace}_marquee 5s linear infinite;
     }
 
     ${doodad.cssPrefix} #infoText {
@@ -162,7 +163,7 @@ doodad.HTML = `
     </div>
     <div class="grid" id="goodies"></div>
     <div class="grid" id="doodads"></div>
-    <div class="info"><p id="infoText">inventory woohoo!!</p></div>
+    <div class="info"><p id="infoText"></p></div>
 </div>
 `;
 
@@ -182,7 +183,7 @@ function closerLook(item, itemDatabase) {
             button.style.display = "none";
         }
     });
-
+    
     // Show the closerLook div and closerLookClose button
     closerLookDiv.style.display = "flex";
     closerLookCloseButton.style.display = "block";
@@ -247,10 +248,14 @@ function closerLook(item, itemDatabase) {
         }
     });
 
-    // Disable hiding or deleting the inventory doodad
-    if (item.namespace === doodad.namespace) {
-        hideButton.style.display = "none";
-        deleteButton.style.display = "none";
+    switch (item.namespace) {
+        case doodad.namespace: // Hide the hide and delete buttons for the inventory
+            hideButton.style.display = "none";
+            deleteButton.style.display = "none";
+            break;
+        case "jackomix--po_box": // Hide the delete button for the po_box
+            deleteButton.style.display = "none";
+            break;
     }
 }
 
@@ -285,17 +290,103 @@ function inventoryUpdateDoodad() {
         const itemElement = document.createElement("div");
         itemElement.classList.add("item");
         itemElement.innerHTML = itemDatabase.emoji;
+        itemElement.dataset.namespace = item.namespace; // Add the namespace as a data attribute
 
         itemElement.addEventListener("mouseenter", function () {
             updateInfoText(`<b style="color: var(--yellow);">${itemDatabase.nickname}</b> | ${itemDatabase.description}`);
         });
 
         itemElement.addEventListener("mouseleave", function () {
-            updateInfoText(defaultInfoText);
+            if (!doodad.e(".closerLook").style.display || doodad.e(".closerLook").style.display === "none") {
+                updateInfoText(defaultInfoText);
+            }
         });
 
         itemElement.addEventListener("click", function () {
             closerLook(item, itemDatabase);
+        });
+
+        itemElement.draggable = true;
+
+        itemElement.addEventListener("dragstart", function (event) {
+            itemElement.classList.add("dragging");
+            event.dataTransfer.setData("text/plain", itemElement.dataset.namespace);
+        });
+
+        itemElement.addEventListener("dragover", function (event) {
+            event.preventDefault();
+            const rect = itemElement.getBoundingClientRect();
+            const mouseX = event.clientX;
+            const itemCenter = rect.left + rect.width / 2;
+            const isLeft = mouseX < itemCenter;
+
+            if (isLeft) {
+            itemElement.style.borderLeft = "3px solid var(--green)";
+            itemElement.style.borderRight = "none";
+            } else {
+            itemElement.style.borderRight = "3px solid var(--green)";
+            itemElement.style.borderLeft = "none";
+            }
+        });
+
+        itemElement.addEventListener("dragleave", function (event) {
+            event.preventDefault();
+            itemElement.style.borderLeft = "none";
+            itemElement.style.borderRight = "none";
+        });
+
+        itemElement.addEventListener("drop", function (event) {
+            event.preventDefault();
+            itemElement.classList.remove("dragging");
+            const draggedItemNamespace = event.dataTransfer.getData("text/plain");
+            const draggedItem = inventory[currentCategory].find(item => item.namespace === draggedItemNamespace);
+            const targetItemNamespace = itemElement.dataset.namespace;
+            const targetItem = inventory[currentCategory].find(item => item.namespace === targetItemNamespace);
+            const draggedItemIndex = inventory[currentCategory].indexOf(draggedItem);
+            const targetItemIndex = inventory[currentCategory].indexOf(targetItem);
+
+            // If the dragged item is dropped onto itself, do nothing
+            if (draggedItemNamespace === targetItemNamespace) {
+                // Sometimes the border stays, so remove it here
+                itemElement.style.borderLeft = "none";
+                itemElement.style.borderRight = "none";
+                return;
+            }
+
+            // Check which side of the targetItem the mouse was on
+            const rect = itemElement.getBoundingClientRect();
+            const mouseX = event.clientX;
+            const itemCenter = rect.left + rect.width / 2;
+            const isLeft = mouseX < itemCenter;
+
+            // If the dragged item is the first or last, and is dropped on 2nd or 2nd last on the left or right side, do nothing
+            if ((draggedItemIndex === 0 && 
+                targetItemIndex === 1) &&
+                isLeft || 
+
+                (draggedItemIndex === inventory[currentCategory].length - 1 && 
+                targetItemIndex === inventory[currentCategory].length - 2) &&
+                !isLeft)
+            {
+                    return;
+            }
+
+            // Determine the index to insert the dragged item
+            let insertIndex;
+            if (isLeft) {
+            insertIndex = targetItemIndex;
+            } else {
+            insertIndex = targetItemIndex + 1;
+            }
+
+            // Remove the dragged item from its original position
+            inventory[currentCategory].splice(draggedItemIndex, 1);
+
+            // Insert the dragged item at the new position
+            inventory[currentCategory].splice(insertIndex, 0, draggedItem);
+
+            // Update the inventory in the DOM
+            inventoryUpdateDoodad();
         });
 
         container.appendChild(itemElement);
@@ -364,6 +455,12 @@ doodad.onLoad = function () {
     onLoadButton.classList.add("active");
     switchCategory(currentCategory);
 
+    updateInfoText(defaultInfoText);
+
+    inventoryUpdateDoodad();
+}
+
+doodad.onInventoryUpdate = function () {
     inventoryUpdateDoodad();
 }
 

@@ -18,11 +18,16 @@ class Doodad {
         // these aren't defined in this class, but are set to default values
         this.onLoad = () => {};
         this.onReset = () => {};
+        this.onInventoryUpdate = () => {};
 
         if (!database.doodads) database.doodads = [];
 
         // append the doodad to the database
         database.doodads.push(this);
+
+        document.addEventListener("inventoryUpdate", e => {
+            this.onInventoryUpdate(e.detail);
+        });
     }
 
     // random range function
@@ -74,7 +79,6 @@ class Doodad {
     set(name, value) {
         localStorage.setItem("doodad_" + this.namespace + "_" + name, value);
     }
-
     get(name) {
         return localStorage.getItem("doodad_" + this.namespace + "_" + name);
     }
@@ -88,8 +92,8 @@ class Doodad {
         return document.querySelector("#doodad_" + this.namespace).querySelectorAll(query);
     }
 
-    doIHide(boolean) {
-        if (boolean) {
+    doIHide(answer) {
+        if (answer) {
             this.element.style.display = "none";
         } else {
             this.element.style.display = "block";

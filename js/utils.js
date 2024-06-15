@@ -20,3 +20,39 @@ var countDecimals = function (value) {
         return value.toString().split(".")[1].length;  
     return 0;
 };
+
+// https://stackoverflow.com/questions/42747189/how-to-watch-complex-objects-and-their-changes-in-javascript
+function proxify(object, change) {
+    // we use unique field to determine if object is proxy
+    // we can't test this otherwise because typeof and
+    // instanceof is used on original object
+    if (object && object.__proxy__) {
+         return object;
+    }
+    var proxy = new Proxy(object, {
+        get: function(object, name) {
+            if (name == '__proxy__') {
+                return true;
+            }
+            return object[name];
+        },
+        set: function(object, name, value) {
+            var old = object[name];
+            if (value && typeof value == 'object') {
+                // new object need to be proxified as well
+                value = proxify(value, change);
+            }
+            object[name] = value;
+            change(object, name, old, value);
+            return true;
+        }
+    });
+    for (var prop in object) {
+        if (object.hasOwnProperty(prop) && object[prop] &&
+            typeof object[prop] == 'object') {
+            // proxify all child objects
+            object[prop] = proxify(object[prop], change);
+        }
+    }
+    return proxy;
+}

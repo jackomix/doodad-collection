@@ -58,13 +58,22 @@ function moduleLoaded() {
     doodadsLoaded++;
     if (doodadsLoaded === doodadsToLoad.length) init();
 }
-
 function init() {
     console.log("%c" + database.doodads.length +" doodads loaded.", "color: #00ff00");
     console.log("%cLoaded doodads:", "color: #00ff00", database.doodads);
+
     if (!inventoryGetDoodad("jackomix--po_box")) inventoryAddDoodad("jackomix--po_box");
     if (!inventoryGetDoodad("jackomix--inventory")) inventoryAddDoodad("jackomix--inventory");
     if (!inventoryGetDoodad("jackomix--fortune_cookie")) inventoryAddDoodad("jackomix--fortune_cookie");
+
+    inventory = proxify(inventory, function(object, property, oldValue, newValue) {
+        console.log('property ' + property + ' changed from ' + oldValue +
+                    ' to ' + newValue);
+                    
+        // trigger event inventoryUpdate
+        const event = new CustomEvent("inventoryUpdate", {detail: {object, property, oldValue, newValue}});
+        document.dispatchEvent(event);
+    });
 
     inventory.doodads.forEach((doodad) => {
         getDoodad(doodad.namespace).load();
@@ -74,6 +83,29 @@ function init() {
 }
 
 addDoodadsToDatabase();
+
+// check if a new day has passed while this tab is open
+setInterval(() => {
+    date = new Date().toISOString().slice(0, 10);
+    if (lastKnownDate !== date) {
+        // if so, continiously wait until there's been 1 minute without any user interaction
+        // we can use events like mousedown, mousemove, or keydown to check for user interaction
+        let idleTimer = setTimeout(() => {
+            location.reload();
+        }, 60000);
+
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(() => {
+                location.reload();
+            }, 60000);
+        }
+
+        window.addEventListener("mousedown", resetIdleTimer);
+        window.addEventListener("mousemove", resetIdleTimer);
+        window.addEventListener("keydown", resetIdleTimer);
+    };
+}, 60000);
 
 /////////////////////////////////////////////////////
 
