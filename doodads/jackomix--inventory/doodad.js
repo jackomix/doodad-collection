@@ -80,6 +80,7 @@ doodad.HTML = `
         font-size: 1.25rem;
         white-space: nowrap;
         cursor: pointer;
+        user-select: none;
     }
 
     ${doodad.cssPrefix} .item:hover {
@@ -163,12 +164,36 @@ doodad.HTML = `
         }
     }
 
-    @keyframes ${doodad.namespace}_3dspin {
+    @keyframes ${doodad.namespace}_3dspin1 {
         0% {
             transform: rotate3d(1, 1, 1, 0deg);
         }
         100% {
             transform: rotate3d(1, 2, 1, 360deg);
+        }
+    }
+    @keyframes ${doodad.namespace}_3dspin2 {
+        0% {
+            transform: rotate3d(1, 1, 1, 0deg);
+        }
+        100% {
+            transform: rotate3d(2, 1, 1, 360deg);
+        }
+    }
+    @keyframes ${doodad.namespace}_3dspin3 {
+        0% {
+            transform: rotate3d(1, 1, 1, 0deg);
+        }
+        100% {
+            transform: rotate3d(1, -2, 1, 360deg);
+        }
+    }
+    @keyframes ${doodad.namespace}_3dspin4 {
+        0% {
+            transform: rotate3d(1, 1, 1, 0deg);
+        }
+        100% {
+            transform: rotate3d(-2, 1, 1, 360deg);
         }
     }
 
@@ -221,12 +246,20 @@ function closerLook(item, itemDatabase) {
         const iconElement = document.createElement("div");
         iconElement.classList.add("item");
         iconElement.innerHTML = itemDatabase.emoji;
-        iconElement.style.animation = `${doodad.namespace}_3dspin 5s ease-in-out infinite`;
+        iconElement.style.animation = `${doodad.namespace}_3dspin${Math.floor(Math.random() * 4) + 1} 5s ease-in-out infinite`;
         iconElement.style.animationDelay = "-" + (Math.random()*10 + 1) + "s";
         iconElement.style.cursor = "default";
         iconElement.style.width = "8rem";
         iconElement.style.fontSize = "2rem";
         doodad.e(".closerLookInfo").appendChild(iconElement);
+        // When the rotation completes, randomize the direction of the spin
+        iconElement.addEventListener("animationiteration", () => {
+            let newAnim, currAnim = getCurrentAnim(iconElement.style.animation);
+            while ((newAnim = Math.floor(Math.random() * 4) + 1) === currAnim);
+            iconElement.style.animation = `${doodad.namespace}_3dspin${newAnim} 5s ease-in-out infinite`;
+        });
+        
+        const getCurrentAnim = (anim) => +(anim.match(/_3dspin(\d+)/) || [0, 0])[1];
 
         const nicknameElement = document.createElement("p");
         nicknameElement.innerHTML = `<b>${itemDatabase.nickname}</b>`;

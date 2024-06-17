@@ -31,9 +31,12 @@ class Doodad {
     }
 
     // random range function
-    random(seed, min, max) {
+    random(seed, min, max, dateSeed = date) {
+        // if date is not structured as the "date" variable, it will be converted to that format
+        if (dateSeed.length !== 10) dateSeed = new Date(dateSeed).toISOString().slice(0, 10);
+
         // generate hash of full seed, this is what we'll use to generate the "random" number
-        const hash = cyrb53(date + userID + this.namespace + seed);
+        const hash = cyrb53(dateSeed + userID + this.namespace + seed);
 
         // Move the first digit to the end of the decimal
         let hashString = hash.toString();
@@ -48,6 +51,16 @@ class Doodad {
         // Cut the decimals to match the maximum number of decimals in min or max
         const decimalPlaces = Math.max(countDecimals(min), countDecimals(max));
         return randomNumber.toFixed(decimalPlaces);
+    }
+
+    // returns a random time between starting time and ending time
+    // min and max are formatted as "HH:MM:SS" in 24 hour time
+    // by default, they are set to 00:00:00 and 23:59:59
+    randomTimestamp(seed, min = "00:00:00", max = "23:59:59", dateSeed = date) {
+        const minTime = new Date(date + `T${min}Z`).getTime();
+        const maxTime = new Date(date + `T${max}Z`).getTime();
+        const randomTime = this.random(seed, minTime, maxTime, dateSeed);
+        return new Date(parseFloat(randomTime));
     }
 
     // function to load the doodad
