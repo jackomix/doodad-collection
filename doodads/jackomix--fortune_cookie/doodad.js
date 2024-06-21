@@ -41,19 +41,19 @@ doodad.HTML = `
 `;
 
 doodad.onReset = function () {
-    doodad.set("cookieOpened", "false");
+    doodad.set("cookieOpened", false);
 }
 
 doodad.onLoad = function () {
-    if (doodad.get("cookieOpened") === "false") {
+    if (doodad.get("cookieOpened") === false) {
         unopenedCookie();
     } else {
         openCookie();
     }
 
     doodad.e("#unopenedCookie").addEventListener("click", function () {
-        if (doodad.get("cookieOpened") === "false") {
-            doodad.set("cookieOpened", "true");
+        if (doodad.get("cookieOpened") === false) {
+            doodad.set("cookieOpened", true);
             openCookie();
         }
     });
@@ -88,12 +88,16 @@ doodad.onLoad = function () {
     function randomizeCookieVisual() {
         // with a 1% chance, flip the cookie upside down
         if (doodad.random("upsideDown", 0, 100) < 2) {
-            doodad.eAll(".cookie").setAttribute("data-upside-down", "true");
+            doodad.eAll(".cookie").forEach(cookie => {
+                cookie.setAttribute("data-upside-down", "true");
+            });
         }
 
         // with a 1% chance, set the hue to a random one between 0 and 360
         if (doodad.random("rainbow", 0, 100) < 2) {
-            doodad.eAll(".cookie").setAttribute("data-rainbow", "true");
+            doodad.eAll(".cookie").forEach(cookie => {
+                cookie.setAttribute("data-rainbow", "true");
+            });
         }
 
         // with a 1% chance, set #taste to be all uppercase

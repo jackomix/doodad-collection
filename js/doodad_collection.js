@@ -35,7 +35,10 @@ let lastKnownDate = localStorage.getItem("lastKnownDate");
 let newDay = lastKnownDate !== date; 
 localStorage.setItem("lastKnownDate", date)
 
-let daysSinceLastVisit = Math.floor((Date.parse(new Date().toISOString().slice(0, 10)) - new Date(lastKnownDate)) / (1000 * 60 * 60 * 24));
+let daysSinceLastVisit = 0;
+if (lastKnownDate) {
+    daysSinceLastVisit = Math.floor((Date.parse(new Date().toISOString().slice(0, 10)) - new Date(lastKnownDate)) / (1000 * 60 * 60 * 24));
+}
 
 // define database object
 let database = {};

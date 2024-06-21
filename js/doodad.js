@@ -7,9 +7,10 @@ class Doodad {
         this.author = info.author;
         this.description = info.description;
         this.emoji = info.emoji;
-        this.HTML = info.HTML;
+        this.HTML = info.HTML || "";
 
         this.isObtainable = info.isObtainable;
+        this.noHTML = info.noHTML || false;
 
         this.namespace = this.author + "--" + this.codename;
         this.path = "./doodads/" + this.namespace;
@@ -57,32 +58,34 @@ class Doodad {
     // min and max are formatted as "HH:MM:SS" in 24 hour time
     // by default, they are set to 00:00:00 and 23:59:59
     randomTimestamp(seed, min = "00:00:00", max = "23:59:59", dateSeed = date) {
-        const minTime = new Date(date + `T${min}Z`).getTime();
-        const maxTime = new Date(date + `T${max}Z`).getTime();
+        const minTime = new Date(date + `T${min}`).getTime();
+        const maxTime = new Date(date + `T${max}`).getTime();
         const randomTime = this.random(seed, minTime, maxTime, dateSeed);
         return new Date(parseFloat(randomTime));
     }
 
     // function to load the doodad
     load() {
-        const collection = document.querySelector('.collection');
-        const doodadElement = document.createElement('div');
+        if (!this.noHTML) {
+            const collection = document.querySelector('.collection');
+            const doodadElement = document.createElement('div');
 
-        doodadElement.classList.add('doodad');
-        doodadElement.id = "doodad_" + this.namespace;
-        doodadElement.innerHTML = this.HTML;
+            doodadElement.classList.add('doodad');
+            doodadElement.id = "doodad_" + this.namespace;
+            doodadElement.innerHTML = this.HTML;
 
-        // Check if doodad is already loaded
-        if (document.getElementById(doodadElement.id)) {
-            console.error('Doodad "' + this.namespace + '" is already loaded.');
-            return;
-        }
+            // Check if doodad is already loaded
+            if (document.getElementById(doodadElement.id)) {
+                console.error('Doodad "' + this.namespace + '" is already loaded.');
+                return;
+            }
 
-        collection.appendChild(doodadElement);
+            collection.appendChild(doodadElement);
 
-        this.element = doodadElement;
+            this.element = doodadElement;
+        } 
 
-        if (newDay || this.get("_initialized") !== "true") this.onReset();
+        if (newDay || this.get("_initialized") !== true) this.onReset();
         this.set("_initialized", "true");
 
         this.onLoad();
@@ -90,10 +93,19 @@ class Doodad {
 
     // localStorage functions
     set(name, value) {
+        if (typeof value === 'object' || Array.isArray(value)) {
+            value = JSON.stringify(value);
+        }
         localStorage.setItem("doodad_" + this.namespace + "_" + name, value);
     }
     get(name) {
-        return localStorage.getItem("doodad_" + this.namespace + "_" + name);
+        let value = localStorage.getItem("doodad_" + this.namespace + "_" + name);
+        try {
+            value = JSON.parse(value);
+        } catch (error) {
+            console.error("Error parsing localStorage JSON for doodad " + this.namespace + ", value: " + value);
+        }
+        return value;
     }
 
     // shorthand for getting elements, but also limits the scope to the doodad.

@@ -479,7 +479,7 @@ function inventoryUpdateDoodad() {
                 containerElement.insertBefore(draggedDoodadElement, targetDoodadElement.nextSibling);
             }
 
-            console.log("Ordered " + Math.random());
+            updateInfoText(defaultInfoText);
         });
 
         container.appendChild(itemElement);
