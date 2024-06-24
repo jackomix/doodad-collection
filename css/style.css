@@ -4,12 +4,16 @@
 html, body { 
     height: 100%;
     width: 100%;
-    background: var(--background-color);
+    background: var(--background);
 
     font-family: "LXGW WenKai Mono TC", monospace;
     font-weight: 400;
+    color: var(--active-color);
 
     scrollbar-color: var(--active-color) var(--background-color);
+}
+.doodad {
+    scrollbar-color: var(--active-color) var(--doodad-color);
 }
 
 b {
@@ -33,7 +37,7 @@ img {
 
 .doodad {
     height: 28rem;
-    outline: var(--active-color) 4px solid;
+    outline: var(--grid-lines-color) 4px solid;
     background: var(--doodad-color);
     padding: 1rem;
 }

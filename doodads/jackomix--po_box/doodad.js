@@ -172,6 +172,10 @@ function checkForGifts() {
             for (let j = 0; j < pobox.length; j++) {
                 if (pobox[j].timestamp === timestamps[i]) {
                     alreadyInPobox = true;
+                   
+                    timestamps.splice(i, 1);
+                    doodad.set("timestamps", timestamps);
+
                     break;
                 }
             }
