@@ -49,8 +49,8 @@ doodad.HTML = `
     
     /* Generate 10 rules for .items with random negative animation-delays, so they don't wiggle in unison */
     ${Array.from({ length: 10 }, (_, index) => `
-        ${doodad.cssPrefix} .item:nth-child(${index + 6}n) {
-            animation-delay: ${Math.floor(Math.random() * 10) - 10}s;
+        ${doodad.cssPrefix} .item:nth-child(${index + 1}n) {
+            animation-delay: -${Math.random() * (Math.random() + 2)}s;
         }
     `).join('\n')}
 
