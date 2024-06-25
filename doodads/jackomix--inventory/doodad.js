@@ -5,7 +5,7 @@ let doodad = new Doodad({
     codename: "inventory",
     nickname: "Inventory",
     author: "jackomix",
-    description: "Look at all the goodies you've collected over the days!",
+    description: "Browse, look, and sort through your goodies and doodads",
     emoji: "📦🏠",
     isObtainable: false,
     autoObtained: true,
