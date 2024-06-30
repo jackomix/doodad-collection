@@ -5,7 +5,7 @@ let doodad = new Doodad({
     codename: "inventory",
     nickname: "Inventory",
     author: "jackomix",
-    description: "Look at all the goodies you've collected over the days!",
+    description: "Browse, look, and sort through your goodies and doodads",
     emoji: "📦🏠",
     isObtainable: false,
     autoObtained: true,
@@ -31,7 +31,7 @@ doodad.HTML = `
     ${doodad.cssPrefix}  button {
         padding: 0.5em 1em;
         border: none;
-        background: var(--background-color);
+        background: var(--doodad-color);
         cursor: pointer;
         flex-grow: 1;
         outline: 1px solid var(--active-color);
@@ -69,7 +69,7 @@ doodad.HTML = `
     }
 
     ${doodad.cssPrefix} .item {
-        background-color: var(--background-color);
+        background-color: var(--doodad-color);
         outline: 1px solid var(--active-color);
         text-align: center;
         display: flex;
@@ -85,6 +85,10 @@ doodad.HTML = `
 
     ${doodad.cssPrefix} .item:hover {
         animation: ${doodad.namespace}_wiggle infinite 0.25s;
+    }
+
+    ${doodad.cssPrefix} button {
+        color: var(--active-color);
     }
 
     ${doodad.cssPrefix} .closerLook {
@@ -142,12 +146,9 @@ doodad.HTML = `
         flex-shrink: 0;
     }
 
-    ${doodad.cssPrefix} .info p {
-        color: var(--background-color);
-        line-height: 1.5rem;
-    }
-
     ${doodad.cssPrefix} #infoText {
+        color: var(--doodad-color);
+        line-height: 1.5rem;
         width: fit-content;
         display: inline-block;
         white-space:nowrap;

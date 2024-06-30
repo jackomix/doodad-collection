@@ -6,7 +6,7 @@ let doodad = new Doodad({
     codename: "fortune_cookie",
     nickname: "Fortune Cookie",
     author: "jackomix",
-    description: "A cookie with a special fortune inside... What's inside!?",
+    description: "A cookie with a special fortune inside... Whats it say!?",
     emoji: "🥠🍀",
     isObtainable: true,
     showInInventory: false

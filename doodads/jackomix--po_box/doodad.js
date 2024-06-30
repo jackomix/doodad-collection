@@ -49,8 +49,8 @@ doodad.HTML = `
     
     /* Generate 10 rules for .items with random negative animation-delays, so they don't wiggle in unison */
     ${Array.from({ length: 10 }, (_, index) => `
-        ${doodad.cssPrefix} .item:nth-child(${index + 6}n) {
-            animation-delay: ${Math.floor(Math.random() * 10) - 10}s;
+        ${doodad.cssPrefix} .item:nth-child(${index + 1}n) {
+            animation-delay: -${Math.random() * (Math.random() + 2)}s;
         }
     `).join('\n')}
 
@@ -172,6 +172,10 @@ function checkForGifts() {
             for (let j = 0; j < pobox.length; j++) {
                 if (pobox[j].timestamp === timestamps[i]) {
                     alreadyInPobox = true;
+                   
+                    timestamps.splice(i, 1);
+                    doodad.set("timestamps", timestamps);
+
                     break;
                 }
             }
@@ -206,8 +210,13 @@ function addGift(giftNumber, timestamp) {
         case randomPercentGiftType > 70: giftType = "theme"; break; // 71-85  = theme = 15% chance
         case randomPercentGiftType > 50: giftType = "music"; break; // 51-70  = music = 20% chance
         case randomPercentGiftType > 25: giftType = "image"; break; // 26-50  = image = 25% chance
-        case randomPercentGiftType >= 0: giftType = "writing"; break; // 0-25   = writing  = 25% chance
+        case randomPercentGiftType >= 0: giftType = "text"; break; // 0-25   = text  = 25% chance
     }
+
+    /* for stuff like music and themes, where there's a limited quantity and repeats
+    wouldn't be nice, check how many of that type of gift is in our inventory, and if
+    the number is greater than the maximum quantity, change the gift type to something else */
+    // we need to add that code tho, lol
 
     // then we add it to the pobox
     let pobox = doodad.get("pobox");
@@ -262,7 +271,9 @@ function openGift(timestamp, type) {
     // those generators will give us a subtype (like how pictures can be photos or drawings)
     // they will also give us an emoji, name, and description. all of this as an object.
 
-    // inventoryAddGoodie("pobox", type, subtype, "🎁", "Received from P.O. Box");
+    //goodieGenerate(type, sourceText);
+    //inventoryAddGoodie(contents, name, description, type, subtype, emoji, sourceText="Obtained from thin air")
+    //inventoryAddGoodie("pobox", type, subtype, "🎁", "Received from P.O. Box");
 }
 
 doodad.onLoad = function () {
