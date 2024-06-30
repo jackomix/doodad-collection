@@ -9,6 +9,7 @@ let doodad = new Doodad({
     description: "A cookie with a special fortune inside... What's inside!?",
     emoji: "🥠🍀",
     isObtainable: true,
+    showInInventory: false
 });
 
 // here's our doodad's html code

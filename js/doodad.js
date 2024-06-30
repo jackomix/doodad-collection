@@ -11,6 +11,7 @@ class Doodad {
 
         this.isObtainable = info.isObtainable;
         this.noHTML = info.noHTML || false;
+        this.showInInventory = info.showInInventory || true;
 
         this.namespace = this.author + "--" + this.codename;
         this.path = "./doodads/" + this.namespace;

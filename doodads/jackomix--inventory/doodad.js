@@ -365,6 +365,7 @@ function inventoryUpdateDoodad() {
     const appendItem = (item, container) => {
         if (category === "doodads") {
             var itemDatabase = getDoodad(item.namespace);
+            if (itemDatabase.showInInventory === false) return;
         } else {
             var itemDatabase = item;
         }
