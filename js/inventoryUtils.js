@@ -39,19 +39,19 @@ function inventoryDeleteItem(namespace) {
     if (doodadElement) doodadElement.remove();
 }
 
-function inventoryAddGoodie(contents, name, description, type, subtype, emoji, sourceText="Obtained from thin air") {
+function inventoryAddGoodie(goodie) {
     if (!inventory.goodies) {
         inventory.goodies = [];
     }
     inventory.goodies.push({
-        name: name,
-        contents: contents,
-        type: type,
-        subtype: subtype,
-        emoji: emoji,
+        name: goodie.name,
+        contents: goodie.contents,
+        type: goodie.type,
+        subtype: goodie.subtype,
+        emoji: goodie.emoji,
         timeObtained: Date.now(),
-        sourceText: sourceText,
-        id: name + "_" + Date.now(),
+        sourceText: goodie.sourceText || "Obtained from thin air",
+        id: goodie.name + "_" + Date.now(),
     });
 }
 

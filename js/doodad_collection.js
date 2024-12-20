@@ -70,6 +70,7 @@ function init() {
     if (!inventoryGetDoodad("jackomix--po_box")) inventoryAddDoodad("jackomix--po_box");
     if (!inventoryGetDoodad("jackomix--inventory")) inventoryAddDoodad("jackomix--inventory");
     if (!inventoryGetDoodad("jackomix--fortune_cookie")) inventoryAddDoodad("jackomix--fortune_cookie");
+    localStorage.setItem("inventory", JSON.stringify(inventory));
 
     inventory = proxify(inventory, function(object, property, oldValue, newValue) {
         // trigger event inventoryUpdate

@@ -19,7 +19,20 @@ doodad.HTML = `
         justify-content: center;
         align-items: center;
         height: 100%;
-    }   
+        overflow: auto;
+    }
+
+    ${doodad.cssPrefix} .blur {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        transform: translateY(-100%);
+        pointer-events: none;
+        box-shadow: 
+            inset 0px 2rem 2rem -2rem var(--doodad-color),
+            inset 0px -2rem 2rem -2rem var(--doodad-color); 
+    }
 
     ${doodad.cssPrefix} .grid {
         display: flex;
@@ -71,6 +84,7 @@ doodad.HTML = `
 <div class="wrapper">
     <div class="grid"></div>
 </div>
+<div class="blur"></div>
 `;
 
 /*
@@ -107,7 +121,7 @@ types of goodies:
 
 doodad.onReset = function () {
     // try to doodad.get "timestamps" if it doesn't exist, create it
-    let timestamps = doodad.get("timestamps");
+    let timestamps = doodad.get("timestamps") || [];
     if (!timestamps) {
         timestamps = [];
         doodad.set("timestamps", timestamps);
@@ -116,7 +130,7 @@ doodad.onReset = function () {
     // looping daysSinceLastVisit times, generate timestamps for each day
     for (let i = 0; i <= daysSinceLastVisit; i++) {
         let date = new Date(new Date().getTime() - i * 86400000);
-        timestamps = timestamps.concat(generateTimestamps(date));
+        timestamps = timestamps.concat(generateTimestamps(date, timestamps));
     }
     // organize timestamps in order from earliest to latest (to make it more efficient to check for gifts)
     timestamps.sort((a, b) => a - b);
@@ -124,31 +138,31 @@ doodad.onReset = function () {
     doodad.set("timestamps", timestamps);
 }
 
-function generateTimestamps(date) {
+function generateTimestamps(date, timestamps) {
+    let minimumPercentage = 0;
+
+    if (daysSinceStart < 2) { minimumPercentage = 25; }   // increase the chance of gifts in the first two days
+    if (daysSinceStart === 0) { minimumPercentage = 50; } // increase the chance of gifts on the first day to garantee at least one gift
 
     // get the number of gifts that will be given today
-    let randomPercentNumGifts = doodad.random("randomPercentNumGifts", 0, 100, date);
+    let randomPercentNumGifts = doodad.random("randomPercentNumGifts", minimumPercentage, 100, date);
     let numberOfGiftsToday = 0;
 
-    if (daysSinceStart < 2) { randomPercentNumGifts = +randomPercentNumGifts + 20; } // increase the chance of gifts in the first two days
-    if (daysSinceStart === 0) { randomPercentNumGifts = +randomPercentNumGifts + 10; } // increase the chance of gifts on the first day
-
     switch (true) {
-        case randomPercentNumGifts > 95: numberOfGiftsToday = 5; break; // 96-100 = 5 gifts today = 5% chance
-        case randomPercentNumGifts > 90: numberOfGiftsToday = 4; break; // 91-95  = 4 gifts today = 5% chance
-        case randomPercentNumGifts > 80: numberOfGiftsToday = 3; break; // 81-90  = 3 gifts today = 10% chance
-        case randomPercentNumGifts > 60: numberOfGiftsToday = 2; break; // 61-80  = 2 gifts today = 20% chance
-        case randomPercentNumGifts > 30: numberOfGiftsToday = 1; break; // 31-60  = 1 gift today  = 30% chance
-        case randomPercentNumGifts >= 0: numberOfGiftsToday = 0; break; // 0-30   = 0 gifts today = 30% chance
+        case randomPercentNumGifts > 98: numberOfGiftsToday = 5; break; // 99-100 = 5 gifts today = 2% chance
+        case randomPercentNumGifts > 94: numberOfGiftsToday = 4; break; // 95-98  = 4 gifts today = 4% chance
+        case randomPercentNumGifts > 86: numberOfGiftsToday = 3; break; // 87-94  = 3 gifts today = 8% chance
+        case randomPercentNumGifts > 74: numberOfGiftsToday = 2; break; // 75-86  = 2 gifts today = 12% chance
+        case randomPercentNumGifts > 49: numberOfGiftsToday = 1; break; // 50-74  = 1 gift today  = 25% chance
+        case randomPercentNumGifts >= 0: numberOfGiftsToday = 0; break; // 0-49   = 0 gifts today = 50% chance
     }
-    console.log("randomPercentNumGifts: " + randomPercentNumGifts);
-    console.log("numberOfGiftsToday: " + numberOfGiftsToday);
+
     let currentTimestamps = [];
     for (let i = 0; i < numberOfGiftsToday; i++) {
         let giftTimestamp = doodad.randomTimestamp("giftTimestamp" + i, "00:00:00", "23:59:59", date);
 
         // check if the timestamp is already in the array, if it is, increment it by 1 until it's not
-        while (currentTimestamps.includes(giftTimestamp)) {
+        while (currentTimestamps.includes(giftTimestamp) || timestamps.includes(giftTimestamp)) {
             giftTimestamp = giftTimestamp + 1;
         }
         
@@ -163,16 +177,14 @@ function checkForGifts() {
     let timestamps = doodad.get("timestamps");
 
     // go through the timestamps array and check if any of them have passed
-    for (let i = 0; i < timestamps.length; i++) {
+    for (let i = timestamps.length - 1; i >= 0; i--) {
         if (Date.now() > new Date(timestamps[i]).getTime()) {
-            console.log("timestamp passed!")
-
             // check if it's already in the pobox
             let alreadyInPobox = false;
             for (let j = 0; j < pobox.length; j++) {
                 if (pobox[j].timestamp === timestamps[i]) {
                     alreadyInPobox = true;
-                   
+                    
                     timestamps.splice(i, 1);
                     doodad.set("timestamps", timestamps);
 
@@ -191,6 +203,8 @@ function checkForGifts() {
             break;
         }
     }
+
+    poboxUpdateDoodad();
 }
 
 function addGift(giftNumber, timestamp) {
@@ -200,11 +214,11 @@ function addGift(giftNumber, timestamp) {
     let giftType = "";
 
     switch (true) {
-        case randomPercentGiftType >= 0: giftType = "goodie"; break; // 0-25   = goodie  = 25% chance
         case randomPercentGiftType > 75: giftType = "doodad"; break; // 76-100 = doodad = 25% chance
+        case randomPercentGiftType >= 0: giftType = "goodie"; break; // 0-25   = goodie  = 25% chance
     }
 
-    randomPercentGiftType = doodad.random("randomPercentGiftType" + giftNumber, 0, 100);
+    randomPercentGiftType = doodad.random("randomPercentGiftType_" + giftNumber, 0, 100);
     switch (true && giftType === "goodie") {
         case randomPercentGiftType > 85: giftType = "item"; break; // 86-95  = item = 10% chance
         case randomPercentGiftType > 70: giftType = "theme"; break; // 71-85  = theme = 15% chance
@@ -235,14 +249,21 @@ function poboxUpdateDoodad() {
     let grid = doodad.e(".grid");
 
     if (pobox.length === 0) {
-        grid.innerHTML = "<p>No gifts currently :(<br>Check later in the day!</p>";
+        grid.innerHTML = '<p id="noGifts">No gifts currently :(<br>Check later in the day!</p>';
         return;
     }
+
+    // Remove the "noGifts" message if there are gifts
+    let noGiftsMessage = grid.querySelector("#noGifts");
 
     for (let i = 0; i < pobox.length; i++) {
         // check if the item already exists in the grid
         let existingItem = grid.querySelector(`[data-timestamp="${pobox[i].timestamp}"][data-type="${pobox[i].type}"]`);
         if (existingItem) continue;
+
+        if (noGiftsMessage) {
+            noGiftsMessage.remove();
+        }
 
         // if it doesn't exist, create it
         let item = document.createElement("div");
@@ -266,14 +287,10 @@ function poboxUpdateDoodad() {
 function openGift(timestamp, type) {
     let pobox = doodad.get("pobox");
 
-    // insert code here lol
-    // depending on the type of gift, we will run their respective generators
-    // those generators will give us a subtype (like how pictures can be photos or drawings)
-    // they will also give us an emoji, name, and description. all of this as an object.
-
-    //goodieGenerate(type, sourceText);
+    goodie = goodieGenerate(type, sourceText);
     //inventoryAddGoodie(contents, name, description, type, subtype, emoji, sourceText="Obtained from thin air")
-    //inventoryAddGoodie("pobox", type, subtype, "🎁", "Received from P.O. Box");
+    inventoryAddGoodie(goodie)
+    inventoryAddGoodie("pobox", type, subtype, "🎁", "Received from P.O. Box");
 }
 
 doodad.onLoad = function () {
@@ -282,12 +299,11 @@ doodad.onLoad = function () {
     if (!pobox) {
         pobox = [];
         doodad.set("pobox", pobox);
-        console.log("defining pobox")
     }
 
     let timestamps = doodad.get("timestamps");
 
-    // check for gifts every 30 seconds
+    // check for gifts every second
     setInterval(checkForGifts, 1000);
 
     poboxUpdateDoodad();

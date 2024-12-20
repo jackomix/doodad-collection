@@ -69,6 +69,10 @@ doodad.onLoad = function () {
         doodad.e("#text").innerHTML = "You will find a fortune cookie in your future";
     }
 
+    /**
+     * Opens the fortune cookie by displaying the opened cookie element and hiding the unopened cookie element.
+     * Randomizes and displays a description of the cookie and a fortune message.
+     */
     function openCookie() {
         doodad.e("#openedCookie").style.display = "inline-block";
         doodad.e("#unopenedCookie").style.display = "none";
